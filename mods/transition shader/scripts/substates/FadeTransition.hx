@@ -6,6 +6,10 @@ import funkin.visuals.ALECamera;
 import funkin.visuals.shaders.ALERuntimeShader;
 import utils.cool.ShaderUtil;
 
+// HScript compatibility: provide a default super constructor placeholder so the
+// interpreter never complains about an undefined __super_new reference.
+var __super_new = function() {};
+
 var transCamera:FlxCamera;
 var shaderSprite:FlxSprite;
 var transitionShader:ALERuntimeShader;
