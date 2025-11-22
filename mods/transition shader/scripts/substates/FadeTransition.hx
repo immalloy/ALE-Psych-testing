@@ -18,7 +18,7 @@ var shaderSprite:FlxSprite;
 var transitionShader:ALERuntimeShader;
 var progress:Float = 0;
 var shaderTime:Float = 0;
-var transitionDuration:Float = 0.75;
+var transitionDuration:Float = 1.2;
 var finished:Bool = false;
 var lastLogStep:Int = -1;
 
@@ -34,6 +34,8 @@ function onCreate()
         shaderSprite.makeGraphic(FlxG.width, FlxG.height, 0x00ffffff);
         shaderSprite.scrollFactor.set();
         shaderSprite.cameras = [transCamera];
+        shaderSprite.setGraphicSize(FlxG.width, FlxG.height);
+        shaderSprite.updateHitbox();
         add(shaderSprite);
 
         transitionShader = ShaderUtil.createRuntimeShader('Pretty Hip');
@@ -67,7 +69,10 @@ function updateShaderUniforms(elapsed:Float)
 function onUpdate(elapsed:Float)
 {
         var direction:Float = transIn ? -1.0 : 1.0;
-        progress = Math.max(0, Math.min(1, progress + direction * (elapsed / transitionDuration)));
+        var step:Float = elapsed / transitionDuration;
+
+        // Ease the start/end a bit to avoid sudden flashes.
+        progress = Math.max(0, Math.min(1, progress + direction * step));
 
         updateShaderUniforms(elapsed);
 
