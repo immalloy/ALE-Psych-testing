@@ -21,14 +21,16 @@ var shaderTime:Float = 0;
 var transitionDuration:Float = 1.2;
 var finished:Bool = false;
 var lastLogStep:Int = -1;
+var direction:Float = 1.0;
 
 function onCreate()
 {
-        FlxState.transitioning = true;
-        trace('[FadeTransition] onCreate (transIn=' + transIn + ')');
+FlxState.transitioning = true;
+trace('[FadeTransition] onCreate (transIn=' + transIn + ')');
 
-        transCamera = new ALECamera();
-        FlxG.cameras.add(transCamera, false);
+transCamera = new ALECamera();
+transCamera.bgColor = 0x00000000;
+FlxG.cameras.add(transCamera, false);
 
         shaderSprite = new FlxSprite();
         shaderSprite.makeGraphic(FlxG.width, FlxG.height, 0x00ffffff);
@@ -49,8 +51,9 @@ function onCreate()
                 trace('[FadeTransition] Failed to create transition shader');
         }
 
-        progress = transIn ? 1.0 : 0.0;
-        updateShaderUniforms(0);
+progress = transIn ? 0.0 : 1.0;
+direction = transIn ? 1.0 : -1.0;
+updateShaderUniforms(0);
 }
 
 function updateShaderUniforms(elapsed:Float)
@@ -68,11 +71,10 @@ function updateShaderUniforms(elapsed:Float)
 
 function onUpdate(elapsed:Float)
 {
-        var direction:Float = transIn ? -1.0 : 1.0;
-        var step:Float = elapsed / transitionDuration;
+var step:Float = elapsed / transitionDuration;
 
-        // Ease the start/end a bit to avoid sudden flashes.
-        progress = Math.max(0, Math.min(1, progress + direction * step));
+// Ease the start/end a bit to avoid sudden flashes.
+progress = Math.max(0, Math.min(1, progress + direction * step));
 
         updateShaderUniforms(elapsed);
 
@@ -83,9 +85,9 @@ function onUpdate(elapsed:Float)
                 lastLogStep = currentStep;
         }
 
-        if (!finished && ((!transIn && progress >= 1) || (transIn && progress <= 0)))
-        {
-                finished = true;
+if (!finished && ((transIn && progress >= 1) || (!transIn && progress <= 0)))
+{
+finished = true;
                 trace('[FadeTransition] Transition finished');
                 finishCallback();
                 close();
