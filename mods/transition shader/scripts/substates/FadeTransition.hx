@@ -2,6 +2,7 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import funkin.visuals.ALECamera;
 import funkin.visuals.shaders.ALERuntimeShader;
 import utils.cool.ShaderUtil;
 
@@ -20,7 +21,8 @@ function onCreate()
         transCamera = new ALECamera();
         FlxG.cameras.add(transCamera, false);
 
-        shaderSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0x00ffffff);
+        shaderSprite = new FlxSprite();
+        shaderSprite.makeGraphic(FlxG.width, FlxG.height, 0x00ffffff);
         shaderSprite.scrollFactor.set();
         shaderSprite.cameras = [transCamera];
         add(shaderSprite);
