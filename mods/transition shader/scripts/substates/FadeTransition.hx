@@ -8,7 +8,10 @@ import utils.cool.ShaderUtil;
 
 // HScript compatibility: provide a default super constructor placeholder so the
 // interpreter never complains about an undefined __super_new reference.
-var __super_new = function() {};
+function __super_new(?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic)
+{
+        return null;
+}
 
 var transCamera:FlxCamera;
 var shaderSprite:FlxSprite;
@@ -17,10 +20,12 @@ var progress:Float = 0;
 var shaderTime:Float = 0;
 var transitionDuration:Float = 0.75;
 var finished:Bool = false;
+var lastLogStep:Int = -1;
 
 function onCreate()
 {
         FlxState.transitioning = true;
+        trace('[FadeTransition] onCreate (transIn=' + transIn + ')');
 
         transCamera = new ALECamera();
         FlxG.cameras.add(transCamera, false);
@@ -35,6 +40,11 @@ function onCreate()
         if (transitionShader != null)
         {
                 shaderSprite.shader = transitionShader;
+                trace('[FadeTransition] Shader assigned successfully');
+        }
+        else
+        {
+                trace('[FadeTransition] Failed to create transition shader');
         }
 
         progress = transIn ? 1.0 : 0.0;
@@ -47,8 +57,10 @@ function updateShaderUniforms(elapsed:Float)
                 return;
 
         shaderTime += elapsed;
+        var clampedProgress:Float = Math.max(0, Math.min(1, progress));
+
         transitionShader.setFloat('uTime', shaderTime);
-        transitionShader.setFloat('uProgress', progress);
+        transitionShader.setFloat('uProgress', clampedProgress);
         transitionShader.setFloat2('uResolution', FlxG.width, FlxG.height);
 }
 
@@ -59,9 +71,17 @@ function onUpdate(elapsed:Float)
 
         updateShaderUniforms(elapsed);
 
+        var currentStep:Int = Std.int(shaderTime * 10);
+        if (currentStep != lastLogStep && currentStep % 5 == 0)
+        {
+                trace('[FadeTransition] time=' + shaderTime + ' progress=' + progress + ' dir=' + direction);
+                lastLogStep = currentStep;
+        }
+
         if (!finished && ((!transIn && progress >= 1) || (transIn && progress <= 0)))
         {
                 finished = true;
+                trace('[FadeTransition] Transition finished');
                 finishCallback();
                 close();
         }
@@ -70,5 +90,6 @@ function onUpdate(elapsed:Float)
 function onDestroy()
 {
         FlxState.transitioning = false;
+        trace('[FadeTransition] onDestroy');
         FlxG.cameras.remove(transCamera);
 }

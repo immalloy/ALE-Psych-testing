@@ -24,15 +24,15 @@ void main()
     uv += vec2(0.5, 0.5 * aspect);
     uv.y += 0.5 * (1.0 - aspect);
 
-    vec2 wobble = 0.12 * sin(vec2(0.8, 1.1) * uTime + uv.yx * 6.2831);
+    vec2 wobble = 0.08 * sin(vec2(0.9, 1.2) * uTime + uv.yx * 6.2831);
     vec2 grid = uv * (8.0 + 2.0 * sin(uTime * 0.5)) + wobble;
 
     float pulse = 0.5 + 0.5 * sin(uTime * 1.6 + length(grid) * 0.75);
-    float thickness = mix(0.26, 0.1, clamp(uProgress, 0.0, 1.0));
-    float lines = gridLine(grid + pulse, thickness);
+    float easedProgress = smoothstep(0.0, 1.0, clamp(uProgress, 0.0, 1.0));
+    float thickness = mix(0.006, 0.045, easedProgress);
+    float lines = gridLine(grid + pulse, thickness) * easedProgress;
 
-    float visibility = clamp(uProgress, 0.0, 1.0);
-    float alpha = lines * visibility;
+    float alpha = lines;
     vec3 color = vec3(1.0) * lines;
 
     gl_FragColor = vec4(color, alpha);
